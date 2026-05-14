@@ -93,17 +93,20 @@ commits first if you are doing this).
 
 ### Version updates to Code
 
-1. Remove any patches with `quilt pop -a`.
-2. Update the `lib/vscode` submodule to the desired upstream version branch.
-   1. `cd lib/vscode && git checkout release/1.66 && cd ../..`
-   2. `git add lib && git commit -m "chore: update to Code <version>"`
-3. Apply the patches one at a time (`quilt push`). If the application succeeds
-   but the lines changed, update the patch with `quilt refresh`. If there are
-   conflicts, then force apply with `quilt push -f`, manually add back the
-   rejected code, then run `quilt refresh`.
-4. From the code-server **project root**, run `npm install`.
-5. Check the Node.js version that's used by Electron (which is shipped with VS
-   Code. If necessary, update our version of Node.js to match.
+PRs will be automatically created with updates to VS Code. If a patch cannot be
+automatically resolved, it will be necessary to clone the branch, resolve the
+conflicts manually, and finish the update. To do this:
+
+1. Apply as many patches as possible `quilt push -a`.
+2. Once you hit a conflict, force apply with `quilt push -f`, manually add back
+   the rejected code, then run `quilt refresh`.
+3. Once all patches have been resolved, run `./ci/build/update.sh` to finish the
+   update process.
+4. Commit all changes, push them up to the branch, and update the checklist in
+   the PR description.
+
+Once the PR is ready, manually verify that the unreleased changelog section
+contains all the changes going into this version before merging.
 
 ### Patching Code
 

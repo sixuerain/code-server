@@ -78,6 +78,42 @@ nodeArch() {
   echo "$cpu"
 }
 
+run-steps() {
+  local -i failed=0
+  rm -f .cache/checklist
+  while (( $# )) ; do
+    local name=$1 ; shift
+    local fn=$1 ; shift
+    # Only run if an earlier step has not failed.
+    if [[ $failed == 0 ]] ; then
+      echo "$name..."
+      if $fn | indent ; then
+        echo "- [X] $name" >> .cache/checklist
+      else
+        ((failed++))
+      fi
+    fi
+    # For all failed steps, write out an empty checkbox.
+    if [[ $failed != 0 ]] ; then
+      echo "- [ ] $name" >> .cache/checklist
+    fi
+  done
+  if [[ $failed != 0 ]] ; then
+    return 1
+  fi
+}
+
+quiet() {
+  "$@" >/dev/null
+}
+
+indent() {
+  local count=2
+  local space
+  space=$(printf "%${count}s")
+  sed "s/^/$space| /g"
+}
+
 # See gulpfile.reh.ts for available targets.
 if [[ ! ${VSCODE_TARGET-} ]]; then
   VSCODE_TARGET="$(nodeOS)-$(nodeArch)"
